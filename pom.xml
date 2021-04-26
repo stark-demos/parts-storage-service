@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.stark</groupId>
 	<artifactId>parts-storage-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>parts-storage-service</name>
 	<description>Demo project for Parts Storage service</description>
 	<properties>
