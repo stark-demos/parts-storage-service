@@ -22,7 +22,7 @@ public class PartsStorageServiceController {
     private static Logger logger = LoggerFactory.getLogger(PartsStorageServiceController.class);
     private Map<String, Integer> inventory = new ConcurrentHashMap<>();
 
-    @GetMapping("/v1/inventory")
+    @GetMapping("/v2/inventory")
     public InventoryQueryResponse getInventory(
             @RequestParam(value = "partCode", defaultValue = "NONE") String partCode) {
         logger.debug("Requesting inventory status for partCode {}", partCode);
@@ -38,7 +38,7 @@ public class PartsStorageServiceController {
         return response;
     }
 
-    @PostMapping("/v1/inventory")
+    @PostMapping("/v2/inventory")
     public String addInventory(@RequestBody AddInventoryRequest model) {
         logger.debug("Requested to add inventory {}", model);
         String partCode = model.getPartCode();
@@ -55,7 +55,7 @@ public class PartsStorageServiceController {
         return "OK";
     }
 
-    @PostMapping("/v1/inventory/reservation")
+    @PostMapping("/v2/inventory/reservation")
     public InventoryReservationResponse reserveInventory(@RequestBody InventoryReservationRequest request) {
         logger.debug("Requested to reserve inventory {}", request);
         String partCode = request.getPartCode();
@@ -63,7 +63,7 @@ public class PartsStorageServiceController {
         Integer quantity = request.getQuantity();
         Integer remainingParts = 0;
 
-        if (branchCode == null || "".equals(branchCode)) {
+        if (branchCode == null || "".equals(branchCode) || "null".equals(branchCode)) {
             logger.warn("Branch not found in reservation request {}", request);
             return null;
         }

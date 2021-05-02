@@ -32,7 +32,7 @@ public class HttpRequestTest {
 
         HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
 
-        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v1/inventory",
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
                 request, String.class);
 
         assertThat(result.getStatusCodeValue() == 201);
@@ -45,12 +45,12 @@ public class HttpRequestTest {
         air.setQuantity(1);
 
         HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
-        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v1/inventory",
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
                 request, String.class);
         assertThat(result.getStatusCodeValue() == 201);
 
         ResponseEntity<InventoryQueryResponse> getResult = this.restTemplate
-                .getForEntity("http://localhost:" + port + "/v1/inventory?partCode=A", InventoryQueryResponse.class);
+                .getForEntity("http://localhost:" + port + "/v2/inventory?partCode=A", InventoryQueryResponse.class);
         assertThat(getResult.getStatusCodeValue() == 200);
         assertThat(getResult.getBody().getAvailableQuantity() == 1);
     }
@@ -58,7 +58,7 @@ public class HttpRequestTest {
     @Test
     public void testRequestInventoryNotAvailable() {
         ResponseEntity<InventoryQueryResponse> getResult = this.restTemplate
-                .getForEntity("http://localhost:" + port + "/v1/inventory?partCode=B", InventoryQueryResponse.class);
+                .getForEntity("http://localhost:" + port + "/v2/inventory?partCode=B", InventoryQueryResponse.class);
         assertThat(getResult.getStatusCodeValue() == 200);
         assertThat(getResult.getBody().getAvailableQuantity() == 0);
     }
@@ -70,7 +70,7 @@ public class HttpRequestTest {
         air.setQuantity(1);
 
         HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
-        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v1/inventory",
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
                 request, String.class);
         assertThat(result.getStatusCodeValue() == 201);
 
@@ -82,7 +82,7 @@ public class HttpRequestTest {
         HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
 
         ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
-                "http://localhost:" + port + "/v1/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
 
         assertThat(reservationResult.getStatusCodeValue() == 201);
         assertThat(reservationResult.getBody().getReservationId() != null);
@@ -97,7 +97,7 @@ public class HttpRequestTest {
         air.setQuantity(1);
 
         HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
-        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v1/inventory",
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
                 request, String.class);
         assertThat(result.getStatusCodeValue() == 201);
 
@@ -108,7 +108,7 @@ public class HttpRequestTest {
         HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
 
         ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
-                "http://localhost:" + port + "/v1/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
 
         assertThat(reservationResult.getStatusCodeValue() == 201);
         assertThat(reservationResult.getBody() == null);
@@ -121,7 +121,7 @@ public class HttpRequestTest {
         air.setQuantity(1);
 
         HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
-        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v1/inventory",
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
                 request, String.class);
         assertThat(result.getStatusCodeValue() == 201);
 
@@ -132,7 +132,81 @@ public class HttpRequestTest {
         HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
 
         ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
-                "http://localhost:" + port + "/v1/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+
+        assertThat(reservationResult.getStatusCodeValue() == 201);
+        assertThat(reservationResult.getBody() == null);
+    }
+
+    @Test
+    public void reserveInventoryNoBranch() {
+        AddInventoryRequest air = new AddInventoryRequest();
+        air.setPartCode("A");
+        air.setQuantity(1);
+
+        HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
+                request, String.class);
+        assertThat(result.getStatusCodeValue() == 201);
+
+        InventoryReservationRequest inventoryRequest = new InventoryReservationRequest();
+        inventoryRequest.setRepairRequestId("A-1");
+        inventoryRequest.setPartCode("A");
+        inventoryRequest.setQuantity(1);
+        HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
+
+        ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+
+        assertThat(reservationResult.getStatusCodeValue() == 201);
+        assertThat(reservationResult.getBody() == null);
+    }
+
+    @Test
+    public void reserveInventoryEmptyBranch() {
+        AddInventoryRequest air = new AddInventoryRequest();
+        air.setPartCode("A");
+        air.setQuantity(1);
+
+        HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
+                request, String.class);
+        assertThat(result.getStatusCodeValue() == 201);
+
+        InventoryReservationRequest inventoryRequest = new InventoryReservationRequest();
+        inventoryRequest.setRepairRequestId("A-1");
+        inventoryRequest.setPartCode("A");
+        inventoryRequest.setBranchCode("");
+        inventoryRequest.setQuantity(1);
+        HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
+
+        ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
+
+        assertThat(reservationResult.getStatusCodeValue() == 201);
+        assertThat(reservationResult.getBody() == null);
+    }
+
+    @Test
+    public void reserveInventoryNullValueBranch() {
+        AddInventoryRequest air = new AddInventoryRequest();
+        air.setPartCode("A");
+        air.setQuantity(1);
+
+        HttpEntity<AddInventoryRequest> request = new HttpEntity<>(air);
+        ResponseEntity<String> result = this.restTemplate.postForEntity("http://localhost:" + port + "/v2/inventory",
+                request, String.class);
+        assertThat(result.getStatusCodeValue() == 201);
+
+        InventoryReservationRequest inventoryRequest = new InventoryReservationRequest();
+        inventoryRequest.setRepairRequestId("A-1");
+        inventoryRequest.setPartCode("A");
+        inventoryRequest.setBranchCode("null");
+        inventoryRequest.setQuantity(1);
+        HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
+
+        ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
+                "http://localhost:" + port + "/v2/inventory/reservation", reservationRequest, InventoryReservationResponse.class);
 
         assertThat(reservationResult.getStatusCodeValue() == 201);
         assertThat(reservationResult.getBody() == null);
