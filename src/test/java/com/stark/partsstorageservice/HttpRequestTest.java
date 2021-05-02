@@ -78,6 +78,7 @@ public class HttpRequestTest {
         inventoryRequest.setRepairRequestId("A-1");
         inventoryRequest.setPartCode("A");
         inventoryRequest.setQuantity(1);
+        inventoryRequest.setBranchCode("B");
         HttpEntity<InventoryReservationRequest> reservationRequest = new HttpEntity<>(inventoryRequest);
 
         ResponseEntity<InventoryReservationResponse> reservationResult = this.restTemplate.postForEntity(
@@ -86,6 +87,7 @@ public class HttpRequestTest {
         assertThat(reservationResult.getStatusCodeValue() == 201);
         assertThat(reservationResult.getBody().getReservationId() != null);
         assertThat(reservationResult.getBody().getRemainingParts() == 0);
+        assertThat(reservationResult.getBody().getBranchCode().equals("B"));
     }
 
     @Test

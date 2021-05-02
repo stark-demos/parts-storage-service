@@ -59,8 +59,15 @@ public class PartsStorageServiceController {
     public InventoryReservationResponse reserveInventory(@RequestBody InventoryReservationRequest request) {
         logger.debug("Requested to reserve inventory {}", request);
         String partCode = request.getPartCode();
+        String branchCode = request.getBranchCode();
         Integer quantity = request.getQuantity();
         Integer remainingParts = 0;
+
+        if (branchCode == null || "".equals(branchCode)) {
+            logger.warn("Branch not found in reservation request {}", request);
+            return null;
+        }
+
         if (inventory.containsKey(partCode)) {
             Integer currentValue = inventory.get(partCode);
             logger.debug("Found {} parts in inventory for {}", currentValue, partCode);
@@ -80,6 +87,7 @@ public class PartsStorageServiceController {
             return null;
         }
         InventoryReservationResponse response = new InventoryReservationResponse();
+        response.setBranchCode(branchCode);
         response.setPartCode(request.getPartCode());
         response.setQuantity(request.getQuantity());
         response.setRepairRequestId(request.getRepairRequestId());
